@@ -1,9 +1,11 @@
-# FROM mariadb:10.5
-# ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-# ENV MYSQL_DATABASE=${MYSQL_DATABASE}
-# ENV MYSQL_USER=${MYSQL_USER}
-# ENV MYSQL_PASSWORD=${MYSQL_PASSWORD}
-FROM mariadb:10.5
+FROM debian:bookworm
 
-# Optional: seed SQL (if needed)
-# COPY ./init.sql /docker-entrypoint-initdb.d/
+RUN apt-get update && apt-get install -y mariadb-server
+
+COPY ./tools/start.sh /start.sh
+RUN chmod +x /start.sh
+
+RUN sed -i "s/127.0.0.1/0.0.0.0/" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+EXPOSE 3306
+ENTRYPOINT ["/start.sh"]

@@ -1,62 +1,12 @@
-# services:
-#     nginx:
-#         build: ./requirements/nginx
-#         container_name: nginx
-#         ports:
-#             - "80:80"
-#             - "443:443"
-#         networks:
-#             - inception
-#         restart: always
-#         volumes:
-#             - ./srcs/requirements/nginx/conf/wordpress.conf:/etc/nginx/conf
-#             - ./path/to/ssl:/etc/nginx/ssl:ro
-#             - wp_data:/var/www/html
-#     wordpress:
-#         build: ./requirements/wordpress
-#         container_name: wordpress
-#         volumes:
-#             - wp_data:/var/www/html
-#         environment:
-#             WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-#             WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-#             WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
-#             WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
-#         depends_on:
-#             - mariadb
-#         networks:
-#             - inception
-#         restart: always
-#     mariadb:
-#         build: ./requirements/mariadb
-#         container_name: mariadb
-#         volumes:
-#             - mariadb_data:/var/lib/mysql
-#         environment:
-#             MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-#             MYSQL_DATABASE: ${MYSQL_DATABASE}
-#             MYSQL_USER: ${MYSQL_USER}
-#             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-#         networks:
-#             - inception
-#         restart: always
-# volumes:
-#     nginx_data:
-#     wp_data:
-#     mariadb_data:
-
-# networks:
-#     inception:
-
 services:
   nginx:
     build:
       context: ./requirements/nginx
     ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./requirements/nginx/conf/wordpress.conf:/etc/nginx/conf.d/wordpress.conf
+      - ./requirements/nginx/ssl:/etc/nginx/ssl
     depends_on:
       - wordpress
     restart: always
@@ -79,10 +29,10 @@ services:
     build:
       context: ./requirements/mariadb
     environment:
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     restart: always

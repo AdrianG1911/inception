@@ -1,0 +1,2 @@
+# SSL private key - do not track
+srcs/requirements/nginx/ssl/nginx.key
