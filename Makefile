@@ -6,39 +6,41 @@
 #    By: adrgutie <adrgutie@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/12 20:30:51 by adrgutie          #+#    #+#              #
-#    Updated: 2025/06/15 02:52:00 by adrgutie         ###   ########.fr        #
+#    Updated: 2025/06/16 23:39:43 by adrgutie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-COMPOSE = docker compose
+# --- DEBUG MAKEFILE ---
+# This version prints all commands and will fail on any error.
+
 YML_FILE = ./srcs/docker-compose.yml
+COMPOSE_PROJECT_NAME = $(shell basename $$(dirname $(YML_FILE)))
+DB_VOLUME = $(COMPOSE_PROJECT_NAME)_db_data
+WP_VOLUME = $(COMPOSE_PROJECT_NAME)_wordpress_data
+COMPOSE = docker compose -f $(YML_FILE)
+
+all: up
 
 up:
-	$(COMPOSE) -f $(YML_FILE) up -d --build
+	echo "Building and starting containers..."
+	$(COMPOSE) up -d --build
 
 down:
-	$(COMPOSE) -f $(YML_FILE) down
-
-start:
-	$(COMPOSE) -f $(YML_FILE) start
-
-stop:
-	$(COMPOSE) -f $(YML_FILE) stop
-
-restart:
-	$(MAKE) stop
-	$(MAKE) up
-
-re:
-	$(MAKE) down
-	$(MAKE) up
+	echo "Stopping and removing containers..."
+	$(COMPOSE) down --remove-orphans
 
 clean:
-	$(COMPOSE) -f $(YML_FILE) down -v --remove-orphans
+	echo "--- RUNNING DEBUG CLEAN ---"
+	echo "STEP 1: Stopping project..."
+	$(COMPOSE) down --remove-orphans
+	echo "STEP 2: Forcefully deleting DB volume ($(DB_VOLUME))..."
+	docker volume rm -f $(DB_VOLUME)
+	echo "STEP 3: Forcefully deleting WP volume ($(WP_VOLUME))..."
+	docker volume rm -f $(WP_VOLUME)
+	echo "--- DEBUG CLEAN FINISHED ---"
 
 fclean: clean
-	docker system prune -a --volumes -f
+	echo "--- Pruning Docker system ---"
+	docker system prune -af
 
-.PHONY: up down start stop restart clean fclean
-
-
+.PHONY: all up down clean fclean
