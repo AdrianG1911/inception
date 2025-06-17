@@ -42,5 +42,18 @@ if ! wp core is-installed --allow-root; then
     chown -R www-data:www-data /var/www/html
 fi
 
+if ! wp user get "$WP_SUBSCRIBER_USER" --allow-root --quiet; then
+    echo "Creating subscriber user: $WP_SUBSCRIBER_USER"
+    wp user create \
+        "$WP_SUBSCRIBER_USER" \
+        "$WP_SUBSCRIBER_EMAIL" \
+        --role=subscriber \
+        --user_pass="$WP_SUBSCRIBER_PASS" \
+        --allow-root
+else
+    echo "Subscriber user '$WP_SUBSCRIBER_USER' already exists."
+fi
+
+
 # Start PHP-FPM
 exec php-fpm8.2 -F
