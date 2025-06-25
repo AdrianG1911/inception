@@ -3,25 +3,26 @@ services:
     build:
       context: ./requirements/nginx
     image: nginx
+    container_name: nginx
     ports:
       - "443:443"
     volumes:
-      - wordpress_data:/var/www/html
+      - /home/adrgutie/data:/var/www/html
     env_file:
-      - ./.env # This tells nginx to load the .env file
+      - ./.env
     depends_on:
       - wordpress
     restart: always
     networks:
-      - inception
+      - docker-network
 
   wordpress:
     build:
       context: ./requirements/wordpress
     image: wordpress
+    container_name: wordpress
     volumes:
-      - wordpress_data:/var/www/html
-    # This block translates the .env variables to what WordPress expects
+      - /home/adrgutie/data:/var/www/html
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
@@ -38,15 +39,15 @@ services:
       - mariadb
     restart: always
     networks:
-      - inception
+      - docker-network
 
   mariadb:
     build:
       context: ./requirements/mariadb
     image: mariadb
+    container_name: mariadb
     volumes:
-      - db_data:/var/lib/mysql
-    # This block passes the .env variables directly to the MariaDB script
+      - /home/adrgutie/data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -54,12 +55,12 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: always
     networks:
-      - inception
+      - docker-network
 
 volumes:
   wordpress_data:
   db_data:
 
 networks:
-  inception:
+  docker-network:
     driver: bridge
