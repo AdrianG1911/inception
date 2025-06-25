@@ -7,7 +7,7 @@ services:
     ports:
       - "443:443"
     volumes:
-      - /home/adrgutie/data:/var/www/html
+      - /home/adrgutie/data/www:/var/www/html
     env_file:
       - ./.env
     depends_on:
@@ -22,7 +22,7 @@ services:
     image: wordpress
     container_name: wordpress
     volumes:
-      - /home/adrgutie/data:/var/www/html
+      - /home/adrgutie/data/www:/var/www/html
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
@@ -47,7 +47,7 @@ services:
     image: mariadb
     container_name: mariadb
     volumes:
-      - /home/adrgutie/data:/var/lib/mysql
+      - /home/adrgutie/data/mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -63,4 +63,5 @@ volumes:
 
 networks:
   docker-network:
+    name: docker-network
     driver: bridge
