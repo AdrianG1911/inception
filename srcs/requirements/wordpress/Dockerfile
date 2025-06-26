@@ -1,9 +1,11 @@
+# Changed to debian:bullseye
+
 FROM debian:bullseye
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# Install dependencies for Debian Bullseye (PHP 7.4)
 RUN apt-get update && apt-get install -y \
     php7.4 \
     php7.4-fpm \
@@ -23,12 +25,14 @@ RUN apt-get update && apt-get install -y \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-
+# Update path for PHP 7.4 configuration
 RUN echo "memory_limit = 256M" > /etc/php/7.4/fpm/conf.d/90-memlimit.ini
 
+# Update path for PHP 7.4 configuration
 COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
-# Install wp-cli
+# Install wp-cli (this is version-independent)
+
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp
 
@@ -36,7 +40,6 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 RUN mkdir -p /var/www/html && chown -R www-data:www-data /var/www/html
 
 RUN mkdir -p /run/php
-
 
 # Copy the entrypoint
 COPY tools/entrypoint.sh /entrypoint.sh

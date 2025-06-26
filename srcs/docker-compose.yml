@@ -7,7 +7,8 @@ services:
     ports:
       - "443:443"
     volumes:
-      - /home/adrgutie/data/www:/var/www/html
+      # This now points to a specific directory on your host machine
+      - /home/adrgutie/data/wordpress:/var/www/html
     env_file:
       - ./.env
     depends_on:
@@ -22,7 +23,11 @@ services:
     image: wordpress
     container_name: wordpress
     volumes:
-      - /home/adrgutie/data/www:/var/www/html
+
+      # This also points to the same host directory
+      - /home/adrgutie/data/wordpress:/var/www/html
+    env_file:
+      - ./.env
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
@@ -31,9 +36,6 @@ services:
       WP_ADMIN_USER: ${WP_ADMIN_USER}
       WP_ADMIN_PASS: ${WP_ADMIN_PASS}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-      WP_SUBSCRIBER_USER: ${WP_SUBSCRIBER_USER}
-      WP_SUBSCRIBER_PASS: ${WP_SUBSCRIBER_PASS}
-      WP_SUBSCRIBER_EMAIL: ${WP_SUBSCRIBER_EMAIL}
       DOMAIN_NAME: ${DOMAIN_NAME}
     depends_on:
       - mariadb
@@ -47,7 +49,8 @@ services:
     image: mariadb
     container_name: mariadb
     volumes:
-      - /home/adrgutie/data/mysql:/var/lib/mysql
+      # This now points to the database directory on your host machine
+      - /home/adrgutie/data/mariadb:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -57,9 +60,8 @@ services:
     networks:
       - docker-network
 
-volumes:
-  wordpress_data:
-  db_data:
+# We no longer need the top-level volumes key because we are using bind mounts
+# (linking directly to host paths) instead of named volumes.
 
 networks:
   docker-network:

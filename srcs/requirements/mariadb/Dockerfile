@@ -13,7 +13,7 @@ RUN chmod +x /start.sh
 EXPOSE 3306
 ENTRYPOINT ["/start.sh"]
 
-#to login
+#to login to databases
 #docker exec -t srcs-mariadb-1 bash
 #mariadb -u root -p
 #SHOW DATABASES;
