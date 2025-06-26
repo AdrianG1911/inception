@@ -3,6 +3,7 @@ services:
     build:
       context: ./requirements/nginx
     image: nginx
+    container_name: nginx
     ports:
       - "443:443"
     volumes:
@@ -14,13 +15,15 @@ services:
       - wordpress
     restart: always
     networks:
-      - inception
+      - docker-network
 
   wordpress:
     build:
       context: ./requirements/wordpress
     image: wordpress
+    container_name: wordpress
     volumes:
+
       # This also points to the same host directory
       - /home/adrgutie/data/wordpress:/var/www/html
     env_file:
@@ -38,12 +41,13 @@ services:
       - mariadb
     restart: always
     networks:
-      - inception
+      - docker-network
 
   mariadb:
     build:
       context: ./requirements/mariadb
     image: mariadb
+    container_name: mariadb
     volumes:
       # This now points to the database directory on your host machine
       - /home/adrgutie/data/mariadb:/var/lib/mysql
@@ -54,11 +58,12 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: always
     networks:
-      - inception
+      - docker-network
 
 # We no longer need the top-level volumes key because we are using bind mounts
 # (linking directly to host paths) instead of named volumes.
 
 networks:
-  inception:
+  docker-network:
+    name: docker-network
     driver: bridge
