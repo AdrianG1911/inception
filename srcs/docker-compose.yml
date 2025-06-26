@@ -6,9 +6,10 @@ services:
     ports:
       - "443:443"
     volumes:
-      - wordpress_data:/var/www/html
+      # This now points to a specific directory on your host machine
+      - /home/adrgutie/data/wordpress:/var/www/html
     env_file:
-      - ./.env # This tells nginx to load the .env file
+      - ./.env
     depends_on:
       - wordpress
     restart: always
@@ -20,8 +21,10 @@ services:
       context: ./requirements/wordpress
     image: wordpress
     volumes:
-      - wordpress_data:/var/www/html
-    # This block translates the .env variables to what WordPress expects
+      # This also points to the same host directory
+      - /home/adrgutie/data/wordpress:/var/www/html
+    env_file:
+      - ./.env
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
@@ -30,9 +33,6 @@ services:
       WP_ADMIN_USER: ${WP_ADMIN_USER}
       WP_ADMIN_PASS: ${WP_ADMIN_PASS}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-      WP_SUBSCRIBER_USER: ${WP_SUBSCRIBER_USER}
-      WP_SUBSCRIBER_PASS: ${WP_SUBSCRIBER_PASS}
-      WP_SUBSCRIBER_EMAIL: ${WP_SUBSCRIBER_EMAIL}
       DOMAIN_NAME: ${DOMAIN_NAME}
     depends_on:
       - mariadb
@@ -45,8 +45,8 @@ services:
       context: ./requirements/mariadb
     image: mariadb
     volumes:
-      - db_data:/var/lib/mysql
-    # This block passes the .env variables directly to the MariaDB script
+      # This now points to the database directory on your host machine
+      - /home/adrgutie/data/mariadb:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -56,9 +56,8 @@ services:
     networks:
       - inception
 
-volumes:
-  wordpress_data:
-  db_data:
+# We no longer need the top-level volumes key because we are using bind mounts
+# (linking directly to host paths) instead of named volumes.
 
 networks:
   inception:
