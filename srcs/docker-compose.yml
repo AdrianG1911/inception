@@ -3,12 +3,11 @@ services:
     build:
       context: ./requirements/nginx
     image: nginx
-    container_name: nginx
+    container_name: nginx-c
     ports:
       - "443:443"
     volumes:
-      # This now points to a specific directory on your host machine
-      - /home/adrgutie/data/wordpress:/var/www/html
+      - wordpress-data:/var/www/html
     env_file:
       - ./.env
     depends_on:
@@ -21,11 +20,9 @@ services:
     build:
       context: ./requirements/wordpress
     image: wordpress
-    container_name: wordpress
+    container_name: wordpress-c
     volumes:
-
-      # This also points to the same host directory
-      - /home/adrgutie/data/wordpress:/var/www/html
+      - wordpress-data:/var/www/html
     env_file:
       - ./.env
     environment:
@@ -47,10 +44,9 @@ services:
     build:
       context: ./requirements/mariadb
     image: mariadb
-    container_name: mariadb
+    container_name: mariadb-c
     volumes:
-      # This now points to the database directory on your host machine
-      - /home/adrgutie/data/mariadb:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -60,8 +56,22 @@ services:
     networks:
       - docker-network
 
-# We no longer need the top-level volumes key because we are using bind mounts
-# (linking directly to host paths) instead of named volumes.
+# Define the named volumes at the top level
+volumes:
+  wordpress-data:
+    name: WordPress
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/adrgutie/data/wordpress' 
+  mariadb-data:
+    name: DB
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/adrgutie/data/mariadb'
 
 networks:
   docker-network:
